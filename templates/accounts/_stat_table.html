@@ -1,0 +1,7 @@
+<div class="col-lg-6"><div class="card shadow-sm h-100">
+  <div class="card-header bg-white fw-semibold">{{ heading }}</div>
+  <table class="table table-sm mb-0">
+    {% for label, count in rows %}<tr><td>{{ label }}</td><td class="text-end fw-semibold">{{ count }}</td></tr>
+    {% empty %}<tr><td class="text-muted">No data.</td></tr>{% endfor %}
+  </table>
+</div></div>

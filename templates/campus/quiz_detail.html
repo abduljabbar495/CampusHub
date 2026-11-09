@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div><h1 class="h3 mb-0">{{ quiz.title }}</h1>
+    <div class="text-muted">{{ quiz.course }} · {{ quiz.duration_minutes }} min · {{ questions|length }} question{{ questions|length|pluralize }}
+      {% if not quiz.is_published %}<span class="badge text-bg-warning">Draft</span>{% endif %}</div></div>
+  {% if can_manage %}<a class="btn btn-primary" href="{% url 'campus:question_create' quiz.pk %}">Add question</a>{% endif %}
+</div>
+
+{% if user.role == "student" %}
+  <div class="card shadow-sm"><div class="card-body">
+    {% if attempt and attempt.submitted_at %}
+      <h2 class="h5">Your result</h2><p class="display-6">{{ attempt.score }} / {{ attempt.total }}</p>
+    {% elif questions %}
+      <p>You have <strong>{{ quiz.duration_minutes }} minutes</strong> once you start. You can attempt this quiz only once.</p>
+      <a class="btn btn-success" href="{% url 'campus:quiz_take' quiz.pk %}">{% if attempt %}Resume quiz{% else %}Start quiz{% endif %}</a>
+    {% else %}<p class="text-muted mb-0">No questions yet.</p>{% endif %}
+  </div></div>
+{% else %}
+  <div class="card shadow-sm mb-3"><div class="card-header bg-white fw-semibold">Questions</div>
+    <ol class="list-group list-group-numbered list-group-flush">
+      {% for q in questions %}<li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto"><div>{{ q.text }} <span class="badge text-bg-light">{{ q.marks }} pt</span></div>
+          <div class="small text-muted">A) {{ q.option_a }} · B) {{ q.option_b }} · C) {{ q.option_c }} · D) {{ q.option_d }} — <strong>Correct: {{ q.correct }}</strong></div></div>
+        {% if can_manage %}<span class="text-nowrap"><a class="btn btn-sm btn-outline-primary" href="{% url 'campus:question_edit' q.pk %}">Edit</a>
+          <a class="btn btn-sm btn-outline-danger" href="{% url 'campus:question_delete' q.pk %}">Delete</a></span>{% endif %}</li>
+      {% empty %}<li class="list-group-item text-muted">No questions yet.</li>{% endfor %}
+    </ol></div>
+  <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Attempts ({{ attempts|length }})</div>
+    <table class="table table-sm mb-0">{% for a in attempts %}<tr><td>{{ a.student }}</td><td>{{ a.submitted_at|date:"d M H:i" }}</td><td class="text-end">{{ a.score }} / {{ a.total }}</td></tr>
+      {% empty %}<tr><td class="text-muted">No attempts yet.</td></tr>{% endfor %}</table></div>
+{% endif %}
+<a class="btn btn-link mt-3" href="{% url 'campus:quiz_list' %}">← All quizzes</a>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Complaint #{{ c.pk }}{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-8">
+  <div class="card shadow-sm mb-3"><div class="card-body">
+    <div class="d-flex justify-content-between"><h1 class="h4">#{{ c.pk }} · {{ c.title }}</h1>
+      <span class="badge text-bg-{{ c.status|badgecolor }} align-self-start">{{ c.get_status_display }}</span></div>
+    <p class="text-muted small">{{ c.get_category_display }} · by {{ c.submitted_by }} · {{ c.created|date:"d M Y H:i" }}</p>
+    <p>{{ c.description|linebreaksbr }}</p>
+    {% if c.response %}<div class="alert alert-info mb-0"><strong>Response{% if c.handled_by %} from {{ c.handled_by }}{% endif %}:</strong><br>{{ c.response|linebreaksbr }}</div>{% endif %}
+  </div></div>
+  {% if form %}
+  <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Update & respond</div><div class="card-body">
+    <form method="post" novalidate>{% csrf_token %}{% include "generic/fields.html" %}<button class="btn btn-primary">Save response</button></form>
+  </div></div>
+  {% endif %}
+  <a class="btn btn-link mt-3" href="{% url 'campus:complaint_list' %}">← All complaints</a>
+</div></div>
+{% endblock %}

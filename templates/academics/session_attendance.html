@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+<h1 class="h3 mb-0">{{ session.course.code }} – {{ session.title }}</h1>
+<p class="text-muted">{{ session.date }} · {{ session.time_range }} · {{ session.room }}</p>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card shadow-sm"><div class="card-body text-center">
+      {% if qr %}
+        <h2 class="h6">Students scan this code</h2>
+        <img class="qr-img" src="{{ qr }}" alt="Attendance QR">
+        <p class="small text-muted mt-2 text-break">{{ link }}</p>
+      {% else %}
+        <p class="text-muted my-4">Attendance is closed. Open it to display the QR code.</p>
+      {% endif %}
+      <form method="post" class="d-flex gap-2 justify-content-center">{% csrf_token %}
+        <button name="action" value="toggle" class="btn {% if session.attendance_open %}btn-warning{% else %}btn-success{% endif %}">
+          {% if session.attendance_open %}Close attendance{% else %}Open attendance{% endif %}</button>
+        <button name="action" value="regenerate" class="btn btn-outline-secondary" title="Invalidate the old QR code">New QR</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm mb-3"><div class="card-header bg-white fw-semibold">Present ({{ present|length }})</div>
+      <ul class="list-group list-group-flush">
+        {% for s in present %}<li class="list-group-item d-flex justify-content-between">{{ s }} <span class="text-muted">{{ s.student_id|default:"" }}</span>
+          <form method="post">{% csrf_token %}<input type="hidden" name="student" value="{{ s.pk }}"><button name="action" value="unmark" class="btn btn-sm btn-outline-danger">Remove</button></form></li>
+        {% empty %}<li class="list-group-item text-muted">Nobody yet.</li>{% endfor %}
+      </ul></div>
+    <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Absent ({{ absent|length }})</div>
+      <ul class="list-group list-group-flush">
+        {% for s in absent %}<li class="list-group-item d-flex justify-content-between">{{ s }} <span class="text-muted">{{ s.student_id|default:"" }}</span>
+          <form method="post">{% csrf_token %}<input type="hidden" name="student" value="{{ s.pk }}"><button name="action" value="mark" class="btn btn-sm btn-outline-success">Mark present</button></form></li>
+        {% empty %}<li class="list-group-item text-muted">Everyone is present.</li>{% endfor %}
+      </ul></div>
+  </div>
+</div>
+<a class="btn btn-link mt-3" href="{% url 'academics:session_list' %}">← Back to schedule</a>
+{% endblock %}

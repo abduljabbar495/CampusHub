@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Analytics & reports</h1>
+<div class="row g-3">
+  {% include "accounts/_stat_table.html" with heading="Users by role" rows=users_by_role %}
+  {% include "accounts/_stat_table.html" with heading="Complaints by status" rows=complaints %}
+  {% include "accounts/_stat_table.html" with heading="Incidents by status" rows=incidents_status %}
+  {% include "accounts/_stat_table.html" with heading="Incidents by severity" rows=incidents_severity %}
+  {% include "accounts/_stat_table.html" with heading="Visitors registered (last 7 days)" rows=visitors_per_day %}
+  {% include "accounts/_stat_table.html" with heading="Academic totals" rows=totals %}
+  {% include "accounts/_stat_table.html" with heading="Audit actions (last 7 days)" rows=audit_actions %}
+  <div class="col-lg-6"><div class="card shadow-sm h-100"><div class="card-header bg-white fw-semibold">Export CSV</div>
+    <div class="card-body d-flex flex-wrap gap-2">
+      {% for kind in exports %}<a class="btn btn-outline-primary btn-sm" href="{% url 'accounts:export' kind %}">{{ kind|capfirst }}</a>{% endfor %}
+    </div></div></div>
+</div>
+{% endblock %}

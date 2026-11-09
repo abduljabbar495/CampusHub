@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1 class="h3 mb-1">Welcome, {{ user.first_name|default:user.username }}</h1>
+<p class="text-muted">{{ user.get_role_display }} dashboard</p>
+<div class="row g-3 mb-4">
+  {% for label, value, url in cards %}
+  <div class="col-6 col-lg-3">
+    <a href="{{ url }}" class="text-decoration-none text-dark">
+      <div class="card stat-card shadow-sm h-100"><div class="card-body">
+        <div class="text-muted small">{{ label }}</div><div class="value">{{ value }}</div>
+      </div></div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+<div class="row g-3">
+  {% for panel in panels %}
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">{{ panel.title }}</div>
+      <div class="list-group list-group-flush">
+        {% for text, sub, url in panel.rows %}
+          <a class="list-group-item list-group-item-action" href="{{ url }}">
+            <div>{{ text }}</div><div class="small text-muted">{{ sub }}</div>
+          </a>
+        {% empty %}<div class="list-group-item text-muted">Nothing to show.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
