@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ object.code }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div><h1 class="h3 mb-0">{{ object.code }} – {{ object.title }}</h1>
+    <div class="text-muted">{{ object.semester }} · {{ object.credits }} credits · Teacher: {{ object.teacher|default:"TBA" }}</div></div>
+  <div class="d-flex gap-2">
+    {% if user.role == "student" %}
+      <form method="post" action="{% if is_enrolled %}{% url 'academics:unenroll' object.pk %}{% else %}{% url 'academics:enroll' object.pk %}{% endif %}">{% csrf_token %}
+        {% if is_enrolled %}<button class="btn btn-outline-danger">Leave course</button>{% else %}<button class="btn btn-success">Enroll</button>{% endif %}
+      </form>
+    {% endif %}
+    {% if can_manage %}<a class="btn btn-outline-primary" href="{% url 'academics:course_edit' object.pk %}">Edit</a>{% endif %}
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h2 class="h6">About</h2><p class="mb-0">{{ object.description|default:"No description yet."|linebreaksbr }}</p>
+    </div></div>
+    <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Recent & upcoming classes</div>
+      <ul class="list-group list-group-flush">
+        {% for s in sessions %}<li class="list-group-item">{{ s.title }} <span class="text-muted">· {{ s.date }} {{ s.time_range }} · {{ s.room }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No classes scheduled.</li>{% endfor %}
+      </ul></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Enrolled students ({{ enrolled_count }})</div>
+      {% if enrollments is not None %}
+      <ul class="list-group list-group-flush">
+        {% for e in enrollments %}<li class="list-group-item">{{ e.student }} <span class="text-muted">{{ e.student.student_id|default:"" }}</span></li>
+        {% empty %}<li class="list-group-item text-muted">No students yet.</li>{% endfor %}
+      </ul>
+      {% else %}<div class="card-body text-muted small">Student list is visible to course staff only.</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
