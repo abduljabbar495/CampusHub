@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Verify sign-in{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <div class="card shadow"><div class="card-body p-4">
+    <h1 class="h4">Two-step verification</h1>
+    <p class="text-muted">Enter the 6-digit code from your authenticator app.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "generic/fields.html" %}
+      <button class="btn btn-primary w-100">Verify</button>
+    </form>
+    <div class="text-center small mt-3"><a href="{% url 'accounts:login' %}">Cancel</a></div>
+  </div></div>
+</div>
+{% endblock %}
