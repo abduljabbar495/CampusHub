@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Scan / lookup pass{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-6">
+  <h1 class="h3 mb-3">Scan / look up a visitor pass</h1>
+  <div class="card shadow-sm"><div class="card-body">
+    <p class="text-muted small">Scan the QR code with any phone camera or QR scanner (it opens this site), or paste the pass code / pass number here.</p>
+    <form method="post" novalidate>{% csrf_token %}{% include "generic/fields.html" %}<button class="btn btn-primary">Find pass</button></form>
+  </div></div>
+</div></div>
+{% endblock %}

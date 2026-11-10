@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Enable MFA{% endblock %}
+{% block content %}
+<div class="row"><div class="col-lg-6">
+  <h1 class="h3 mb-3">Enable multi-factor authentication</h1>
+  <div class="card shadow-sm"><div class="card-body">
+    <ol>
+      <li>Install an authenticator app (Google Authenticator, Authy, Microsoft Authenticator).</li>
+      <li>Scan this QR code, or type the key manually.</li>
+      <li>Enter the 6-digit code to confirm.</li>
+    </ol>
+    <div class="text-center"><img class="qr-img" src="{{ qr }}" alt="MFA QR code"></div>
+    <p class="text-center mt-2">Manual key: <code>{{ secret }}</code></p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "generic/fields.html" %}
+      <button class="btn btn-primary">Enable MFA</button>
+      <a class="btn btn-outline-secondary" href="{% url 'accounts:profile' %}">Cancel</a>
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="auth-card" style="max-width:560px">
+  <div class="card shadow"><div class="card-body p-4">
+    <h1 class="h4 mb-3">Create your account</h1>
+    <p class="text-muted small">Students can sign in immediately. Teacher accounts must be approved by an administrator.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include "generic/fields.html" %}
+      <button class="btn btn-primary w-100">Register</button>
+    </form>
+    <div class="text-center small mt-3"><a href="{% url 'accounts:login' %}">Back to sign in</a></div>
+  </div></div>
+</div>
+{% endblock %}

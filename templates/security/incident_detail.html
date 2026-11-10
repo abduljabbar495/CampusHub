@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Incident #{{ i.pk }}{% endblock %}
+{% block content %}
+<div class="row g-3"><div class="col-lg-7">
+  <div class="card shadow-sm"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <h1 class="h4">#{{ i.pk }} · {{ i.title }}</h1>
+      <div><span class="badge text-bg-{{ i.severity|badgecolor }}">{{ i.get_severity_display }}</span>
+        <span class="badge text-bg-{{ i.status|badgecolor }}">{{ i.get_status_display }}</span></div>
+    </div>
+    <p class="text-muted small">📍 {{ i.location }} · occurred {{ i.occurred_at|date:"d M Y H:i" }} · reported by {{ i.reporter }} on {{ i.created|date:"d M H:i" }}</p>
+    <p>{{ i.description|linebreaksbr }}</p>
+    {% if i.attachment %}<p><a href="{{ i.attachment.url }}">Download attachment</a></p>{% endif %}
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Assigned to</dt><dd class="col-sm-8">{{ i.assigned_to|default:"Unassigned" }}</dd>
+      {% if i.resolution_notes %}<dt class="col-sm-4">Resolution notes</dt><dd class="col-sm-8">{{ i.resolution_notes|linebreaksbr }}</dd>{% endif %}
+    </dl>
+  </div></div>
+</div>
+{% if form %}
+<div class="col-lg-5"><div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Triage & track</div><div class="card-body">
+  <form method="post" novalidate>{% csrf_token %}{% include "generic/fields.html" %}<button class="btn btn-primary">Update incident</button></form>
+</div></div></div>
+{% endif %}
+</div>
+<a class="btn btn-link mt-3" href="{% url 'security:incident_list' %}">← All incidents</a>
+{% endblock %}

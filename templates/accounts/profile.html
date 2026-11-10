@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}My profile{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My profile</h1>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm"><div class="card-body">
+      <div class="d-flex gap-3 align-items-center mb-3">
+        {% if user.photo %}<img src="{{ user.photo.url }}" class="rounded-circle" style="width:72px;height:72px;object-fit:cover" alt="">{% endif %}
+        <div><h2 class="h5 mb-0">{{ user }}</h2><span class="badge text-bg-primary">{{ user.get_role_display }}</span></div>
+      </div>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Username</dt><dd class="col-sm-8">{{ user.username }}</dd>
+        <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ user.email|default:"—" }}</dd>
+        <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ user.phone|default:"—" }}</dd>
+        {% if user.role == "student" %}
+        <dt class="col-sm-4">Student ID</dt><dd class="col-sm-8">{{ user.student_id|default:"—" }}</dd>
+        <dt class="col-sm-4">Program / Batch</dt><dd class="col-sm-8">{{ user.program|default:"—" }} / {{ user.batch|default:"—" }}</dd>
+        {% endif %}
+        <dt class="col-sm-4">Department</dt><dd class="col-sm-8">{{ user.department|default:"—" }}</dd>
+        <dt class="col-sm-4">Address</dt><dd class="col-sm-8">{{ user.address|default:"—" }}</dd>
+      </dl>
+      <div class="mt-3 d-flex gap-2">
+        <a class="btn btn-primary" href="{% url 'accounts:profile_edit' %}">Edit profile</a>
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:password_change' %}">Change password</a>
+      </div>
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm"><div class="card-body">
+      <h2 class="h5">Multi-factor authentication</h2>
+      {% if user.mfa_enabled %}
+        <p><span class="badge text-bg-success">Enabled</span></p>
+        <form method="post" action="{% url 'accounts:mfa_disable' %}">{% csrf_token %}
+          <label class="form-label small">Confirm your password to disable</label>
+          <input type="password" name="password" class="form-control mb-2" required>
+          <button class="btn btn-outline-danger btn-sm">Disable MFA</button>
+        </form>
+      {% else %}
+        <p><span class="badge text-bg-warning">Not enabled</span></p>
+        <p class="small text-muted">Protect your account with a time-based one-time code.</p>
+        <a class="btn btn-success btn-sm" href="{% url 'accounts:mfa_setup' %}">Enable MFA</a>
+      {% endif %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

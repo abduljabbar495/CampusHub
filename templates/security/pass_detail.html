@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Visitor pass #{{ p.pk }}{% endblock %}
+{% block content %}
+<div class="row g-3"><div class="col-lg-8">
+  <div class="card shadow-sm"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <div><h1 class="h4 mb-0">Visitor pass #{{ p.pk }}</h1><div class="text-muted small">Issued by {{ p.issued_by|default:"—" }}</div></div>
+      <span class="badge fs-6 text-bg-{{ p.status|badgecolor }}">{{ p.get_status_display }}</span>
+    </div>
+    <hr>
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Visitor</dt><dd class="col-sm-8">{{ p.visitor.name }}</dd>
+      <dt class="col-sm-4">Phone</dt><dd class="col-sm-8">{{ p.visitor.phone }}</dd>
+      <dt class="col-sm-4">ID number</dt><dd class="col-sm-8">{{ p.visitor.id_masked }}</dd>
+      <dt class="col-sm-4">Purpose</dt><dd class="col-sm-8">{{ p.visitor.purpose }}</dd>
+      <dt class="col-sm-4">Visiting</dt><dd class="col-sm-8">{{ p.visitor.host_name }}</dd>
+      <dt class="col-sm-4">Valid</dt><dd class="col-sm-8">{{ p.valid_from|date:"d M H:i" }} → {{ p.valid_until|date:"d M H:i" }}</dd>
+      <dt class="col-sm-4">Checked in</dt><dd class="col-sm-8">{{ p.checked_in_at|date:"d M H:i"|default:"—" }}</dd>
+      <dt class="col-sm-4">Checked out</dt><dd class="col-sm-8">{{ p.checked_out_at|date:"d M H:i"|default:"—" }}</dd>
+    </dl>
+    {% if can_act %}
+    <form method="post" action="{% url 'security:pass_action' p.pk %}" class="d-flex gap-2 mt-3 no-print">{% csrf_token %}
+      {% if p.status == "issued" %}<button name="action" value="checkin" class="btn btn-success">Check in</button>{% endif %}
+      {% if p.status == "checked_in" %}<button name="action" value="checkout" class="btn btn-primary">Check out</button>{% endif %}
+      {% if p.status == "issued" or p.status == "checked_in" %}<button name="action" value="revoke" class="btn btn-outline-danger" onclick="return confirm('Revoke this pass?')">Revoke</button>{% endif %}
+      <button type="button" class="btn btn-outline-secondary" onclick="window.print()">Print</button>
+    </form>
+    {% endif %}
+  </div></div>
+</div>
+<div class="col-lg-4"><div class="card shadow-sm text-center"><div class="card-body">
+  <h2 class="h6">Pass QR code</h2><img class="qr-img" src="{{ qr }}" alt="Pass QR"><p class="small text-muted mt-2 mb-0">Guards scan this at the gate.</p>
+</div></div></div></div>
+<a class="btn btn-link mt-3 no-print" href="{% url 'security:pass_list' %}">← All passes</a>
+{% endblock %}

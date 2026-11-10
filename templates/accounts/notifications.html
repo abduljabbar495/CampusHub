@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Notifications</h1>
+  <form method="post">{% csrf_token %}<button class="btn btn-outline-secondary btn-sm">Mark all as read</button></form>
+</div>
+<div class="list-group shadow-sm">
+  {% for n in items %}
+    <a class="list-group-item list-group-item-action {% if not n.is_read %}fw-semibold{% endif %}" href="{{ n.url|default:'#' }}">
+      {{ n.message }} <small class="text-muted float-end">{{ n.created|date:"d M H:i" }}</small>
+    </a>
+  {% empty %}<div class="list-group-item text-muted">No notifications.</div>{% endfor %}
+</div>
+{% endblock %}
