@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block title %}Dashboard | CampusHub{% endblock %}
+{% block content %}
+<div class="p-4 p-md-5 mb-4 rounded-3 hero"><h1 class="display-6 fw-bold">Welcome to CampusHub</h1><p class="lead mb-0">Your integrated academic, learning and campus security portal.</p></div>
+<h3 class="mb-3">Your workspace</h3>
+<div class="row g-3">
+{% if user.role == 'STUDENT' %}
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'result_list' %}"><div class="card-body"><h5>My Academic Results</h5><p>View semester GPA, overall CGPA and published grades.</p></div></a></div>
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'course_list' %}"><div class="card-body"><h5>My Courses</h5><p>See your enrolled courses and instructors.</p></div></a></div>
+{% elif user.role == 'TEACHER' %}
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'result_list' %}"><div class="card-body"><h5>Result Management</h5><p>Manage your assigned courses, marks and publication.</p></div></a></div>
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'exam_create' %}"><div class="card-body"><h5>Create Result Sheet</h5><p>Start a new semester result sheet for your course.</p></div></a></div>
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'result_entry' %}"><div class="card-body"><h5>Enter Student Marks</h5><p>Record marks for enrolled students.</p></div></a></div>
+{% else %}
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'result_list' %}"><div class="card-body"><h5>Academic Results</h5><p>Review academic results and performance.</p></div></a></div>
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'course_list' %}"><div class="card-body"><h5>Courses</h5><p>Review courses, instructors and enrollment.</p></div></a></div>
+{% endif %}
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'material_list' %}"><div class="card-body"><h5>Course Materials</h5><p>Learning files and resources.</p></div></a></div>
+<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'notice_list' %}"><div class="card-body"><h5>Notices & Events</h5><p>Campus updates and upcoming events.</p></div></a></div>
+{% if user.role == 'SECURITY' or user.role == 'ADMIN' or user.is_superuser %}<div class="col-md-6 col-lg-3"><a class="card dashboard-card h-100" href="{% url 'visitor_list' %}"><div class="card-body"><h5>Visitor Management</h5><p>Visitor passes and entry logs.</p></div></a></div>{% endif %}
+</div>
+<div class="alert alert-info mt-4">For initial setup, create an administrator using <code>python manage.py createsuperuser</code>, then add users, courses and enrollments in Django Admin.</div>
+{% endblock %}

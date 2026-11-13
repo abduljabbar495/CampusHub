@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Teacher Result Workspace | CampusHub{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div><span class="text-primary fw-semibold small text-uppercase">Teacher academic portal</span><h2 class="fw-bold mb-1">Course & Result Management</h2><p class="text-secondary mb-0">Create course result sheets, enter marks for your assigned students, and publish results.</p></div>
+  <div class="d-flex gap-2"><a class="btn btn-outline-primary" href="{% url 'exam_create' %}">+ Create Result Sheet</a><a class="btn btn-primary" href="{% url 'result_entry' %}">+ Enter Student Marks</a></div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card shadow-sm h-100"><div class="card-body"><div class="small text-secondary">Assigned Courses</div><div class="display-6 fw-bold">{{ courses|length }}</div></div></div></div>
+  <div class="col-md-4"><div class="card shadow-sm h-100"><div class="card-body"><div class="small text-secondary">Result Sheets</div><div class="display-6 fw-bold">{{ exams|length }}</div></div></div></div>
+  <div class="col-md-4"><div class="card shadow-sm h-100"><div class="card-body"><div class="small text-secondary">Students' Results</div><div class="display-6 fw-bold">{{ results|length }}</div></div></div></div>
+</div>
+<div class="card shadow-sm mb-4"><div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">My Assigned Courses</h5></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-3">Course</th><th>Type</th><th>Credits</th><th>Enrolled Students</th></tr></thead><tbody>
+{% for course in courses %}<tr><td class="ps-3"><span class="fw-semibold">{{ course.code }}</span><div class="small text-secondary">{{ course.title }}</div></td><td>{{ course.get_course_type_display }}</td><td>{{ course.credit|floatformat:2 }}</td><td>{{ course.students.count }}</td></tr>{% empty %}<tr><td colspan="4" class="text-center text-secondary py-4">No courses have been assigned to you yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card shadow-sm mb-4"><div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">Result Sheets & Publication</h5></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-3">Course</th><th>Semester</th><th>Result Entries</th><th>Status</th><th class="text-end pe-3">Action</th></tr></thead><tbody>
+{% for exam in exams %}<tr><td class="ps-3"><span class="fw-semibold">{{ exam.course.code }}</span><div class="small text-secondary">{{ exam.title }}</div></td><td>{{ exam.semester }}</td><td>{{ exam.result_count }} / {{ exam.course.students.count }}</td><td>{% if exam.published %}<span class="badge text-bg-success">Published</span>{% else %}<span class="badge text-bg-warning">Draft</span>{% endif %}</td><td class="text-end pe-3">{% if not exam.published %}<a class="btn btn-sm btn-outline-primary" href="{% url 'result_entry' %}?exam={{ exam.pk }}">Single entry</a> <a class="btn btn-sm btn-primary" href="{% url 'bulk_result_entry' exam.pk %}">Bulk entry</a><form method="post" action="{% url 'publish_exam' exam.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success" type="submit">Publish</button></form>{% else %}<span class="small text-secondary">Locked</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="5" class="text-center text-secondary py-4">No result sheets created yet. Create one to begin.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card shadow-sm"><div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">Recently Entered Results</h5></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th class="ps-3">Student ID</th><th>Student</th><th>Course</th><th>Semester</th><th>Marks</th><th>Grade</th><th>Status</th></tr></thead><tbody>
+{% for r in results %}<tr><td class="ps-3">{{ r.student.student_id|default:r.student.username }}</td><td>{{ r.student.get_full_name|default:r.student.username }}</td><td>{{ r.exam.course.code }}</td><td>{{ r.exam.semester }}</td><td>{{ r.marks|floatformat:2 }}</td><td><span class="badge text-bg-primary">{{ r.grade }}</span></td><td>{% if r.exam.published %}<span class="badge text-bg-success">Published</span>{% else %}<span class="badge text-bg-warning">Draft</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="7" class="text-center text-secondary py-4">No marks entered yet.</td></tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Examinations | CampusHub{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div><span class="text-primary fw-semibold small text-uppercase">Academic workspace</span><h2 class="fw-bold mb-1">Examinations & Result Sheets</h2><p class="text-secondary mb-0">Track draft and published academic results.</p></div>
+  {% if user.role == 'TEACHER' or user.role == 'ADMIN' or user.is_superuser %}<a href="{% url 'exam_create' %}" class="btn btn-primary">+ Create result sheet</a>{% endif %}
+</div>
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+      <thead class="table-light"><tr><th class="ps-4">Course</th><th>Result Sheet</th><th>Semester</th><th>Status</th><th class="text-end pe-4">Action</th></tr></thead>
+      <tbody>
+      {% for e in exams %}
+      <tr><td class="ps-4"><span class="fw-semibold">{{ e.course.code }}</span><div class="small text-secondary">{{ e.course.title }}</div></td><td>{{ e.title }}</td><td>{{ e.semester }}</td>
+      <td>{% if e.published %}<span class="badge text-bg-success">Published</span>{% else %}<span class="badge text-bg-warning">Draft</span>{% endif %}</td>
+      <td class="text-end pe-4">{% if not e.published and user.role != 'STUDENT' %}<a class="btn btn-sm btn-outline-primary" href="{% url 'bulk_result_entry' e.pk %}">Bulk entry</a> <form method="post" action="{% url 'publish_exam' e.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-success" type="submit">Publish results</button></form>{% elif e.published %}<span class="small text-secondary">Visible to enrolled students</span>{% else %}—{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="5" class="text-center py-5 text-secondary">No examination result sheets found.</td></tr>{% endfor %}
+      </tbody></table></div>
+  </div>
+</div>
+{% endblock %}

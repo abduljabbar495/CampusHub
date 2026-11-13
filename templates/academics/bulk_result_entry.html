@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Bulk Result Entry | CampusHub{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+  <div><span class="text-primary fw-semibold small text-uppercase">Teacher academic portal</span><h2 class="fw-bold mb-1">Bulk Result Entry</h2><p class="text-secondary mb-0">{{ exam.course.code }} · {{ exam.course.title }} · {{ exam.semester }} · {{ exam.course.get_course_type_display }}</p></div>
+  <a class="btn btn-outline-secondary" href="{% url 'result_list' %}">Back to results</a>
+</div>
+<div class="alert alert-info">Enter marks for the enrolled students below. Existing draft marks are pre-filled and can be updated. Results remain hidden from students until published.</div>
+{% if not rows %}<div class="alert alert-warning">No students are enrolled in this course. Add students to the course first.</div>{% else %}
+<form method="post">{% csrf_token %}
+<div class="card shadow-sm border-0 mb-3"><div class="card-body d-flex flex-wrap gap-4"><div><div class="small text-secondary">Enrolled students</div><strong>{{ total_students }}</strong></div><div><div class="small text-secondary">Existing result entries</div><strong>{{ saved_count }}</strong></div><div><div class="small text-secondary">Maximum total</div><strong>100 marks</strong></div></div></div>
+<div class="card shadow-sm border-0"><div class="table-responsive"><table class="table table-bordered table-hover align-middle mb-0"><thead class="table-light"><tr><th>Student ID</th><th>Student Name</th>{% for field,label,maximum in fields %}<th style="min-width:115px">{{ label }}<div class="small text-secondary">Max {{ maximum }}</div></th>{% endfor %}<th>Total</th><th>Grade</th></tr></thead><tbody>
+{% for row in rows %}<tr><td class="fw-semibold">{{ row.student.student_id|default:row.student.username }}</td><td>{{ row.student.get_full_name|default:row.student.username }}</td>{% for cell in row.cells %}<td><input class="form-control form-control-sm mark-input" type="number" name="mark_{{ row.student.pk }}_{{ cell.field }}" min="0" max="{{ cell.maximum }}" step="0.01" value="{{ cell.value|floatformat:2 }}" data-row="{{ row.student.pk }}" data-max="{{ cell.maximum }}" aria-label="{{ cell.label }} for {{ row.student.username }}" required></td>{% endfor %}<td class="fw-semibold total-cell" id="total-{{ row.student.pk }}">{% if row.result %}{{ row.result.marks|floatformat:2 }}{% else %}0.00{% endif %}</td><td class="grade-cell" id="grade-{{ row.student.pk }}">{% if row.result %}{{ row.result.grade }}{% else %}—{% endif %}</td></tr>{% endfor %}
+</tbody></table></div><div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2"><span class="small text-secondary">Check every mark before saving. Maximum marks are enforced on the server.</span><button class="btn btn-primary px-4" type="submit">Save All Student Marks</button></div></div>
+</form>{% endif %}
+<script>
+(function(){
+ const inputs=[...document.querySelectorAll('.mark-input')];
+ const gradeFor=(n)=>n>=80?'A+':n>=75?'A':n>=70?'A-':n>=65?'B+':n>=60?'B':n>=55?'B-':n>=50?'C+':n>=45?'C':n>=40?'D':'F';
+ const update=(id)=>{const row=inputs.filter(x=>x.dataset.row===id);let total=0;row.forEach(x=>total+=Number(x.value||0));const totalCell=document.getElementById('total-'+id);const gradeCell=document.getElementById('grade-'+id);if(totalCell)totalCell.textContent=total.toFixed(2);if(gradeCell)gradeCell.textContent=gradeFor(total);};
+ inputs.forEach(x=>{x.addEventListener('input',()=>{const v=Number(x.value||0);x.setCustomValidity(v<0||v>Number(x.dataset.max)?'Mark exceeds the allowed range.':'');update(x.dataset.row);});update(x.dataset.row);});
+})();
+</script>
+{% endblock %}

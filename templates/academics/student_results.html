@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My Academic Results | CampusHub{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div><span class="text-primary fw-semibold small text-uppercase">Student academic portal</span><h2 class="fw-bold mb-1">My Academic Performance</h2><p class="text-secondary mb-0">Semester-wise grades, credit completion and cumulative CGPA.</p></div>
+  <span class="badge rounded-pill text-bg-success px-3 py-2">Student View · Read only</span>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3"><div class="card h-100 shadow-sm"><div class="card-body"><div class="small text-secondary">Student ID</div><div class="fs-5 fw-bold">{{ user.student_id|default:user.username }}</div><div class="small text-secondary">{{ user.get_full_name|default:user.username }}</div></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card h-100 shadow-sm"><div class="card-body"><div class="small text-secondary">Overall CGPA</div><div class="display-6 fw-bold text-primary">{{ cgpa|default:"—" }}</div><div class="small text-secondary">Published course results only</div></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card h-100 shadow-sm"><div class="card-body"><div class="small text-secondary">Credits Earned</div><div class="display-6 fw-bold">{{ earned_credits|floatformat:2 }}</div><div class="small text-secondary">Attempted: {{ attempted_credits|floatformat:2 }} credits</div></div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="card h-100 shadow-sm"><div class="card-body"><div class="small text-secondary">Courses with Results</div><div class="display-6 fw-bold">{{ completed_courses }}</div><div class="small text-secondary">Courses with published results</div></div></div></div>
+</div>
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">Semester-wise Academic Summary</h5></div>
+  <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+    <thead class="table-light"><tr><th class="ps-3">Semester</th><th>Courses</th><th>Attempted Credits</th><th>Earned Credits</th><th>Semester GPA</th><th class="text-end pe-3">Details</th></tr></thead>
+    <tbody>{% for row in semester_rows %}<tr><td class="ps-3 fw-semibold">{{ row.name }}</td><td>{{ row.course_count }}</td><td>{{ row.credits|floatformat:2 }}</td><td>{{ row.earned_credits|floatformat:2 }}</td><td><span class="badge text-bg-primary fs-6">{{ row.gpa|default:"—" }}</span></td><td class="text-end pe-3"><a class="btn btn-sm btn-outline-primary" href="?semester={{ row.name|urlencode }}">View results</a></td></tr>
+    {% empty %}<tr><td colspan="6" class="text-center text-secondary py-5">No published academic results are available yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><div><h5 class="fw-bold mb-0">Course-wise Result</h5><p class="small text-secondary mb-0">Only your own published results are shown.</p></div><form method="get" class="d-flex gap-2"><select name="semester" class="form-select form-select-sm"><option value="">All semesters</option>{% for semester in semesters %}<option value="{{ semester }}" {% if selected_semester == semester %}selected{% endif %}>{{ semester }}</option>{% endfor %}</select><button class="btn btn-sm btn-outline-primary">Filter</button><a class="btn btn-sm btn-light" href="{% url 'result_list' %}">Reset</a></form></div>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table table-hover align-middle mb-0">
+  <thead class="table-light"><tr><th class="ps-3">Course</th><th>Type</th><th>Credit</th><th>Semester</th><th>Total Marks</th><th>Grade</th><th>Grade Point</th></tr></thead>
+  <tbody>{% for r in results %}<tr><td class="ps-3"><span class="fw-semibold">{{ r.exam.course.code }}</span><div class="small text-secondary">{{ r.exam.course.title }}</div></td><td>{{ r.exam.course.get_course_type_display }}</td><td>{{ r.exam.course.credit|floatformat:2 }}</td><td>{{ r.exam.semester }}</td><td class="fw-semibold">{{ r.marks|floatformat:2 }}/100</td><td><span class="badge text-bg-primary">{{ r.grade }}</span></td><td>{{ r.grade_point|floatformat:2 }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="text-center text-secondary py-5">No results found for this selection.</td></tr>{% endfor %}</tbody>
+</table></div></div>
+<div class="card shadow-sm mt-4"><div class="card-header bg-white"><h5 class="mb-0">Performance Improvement Suggestions</h5></div><div class="card-body">{% for item in improvement_suggestions %}<div class="mb-2">{% if item.course %}<strong>{{ item.course.code }} — {{ item.course.title }}</strong> ({{ item.grade }}, {{ item.grade_point }})<div class="small text-secondary">{{ item.message }}</div>{% else %}<p class="mb-0">{{ item.message }}</p>{% endif %}</div>{% empty %}<p class="text-secondary mb-0">Suggestions will appear after your first published result.</p>{% endfor %}</div></div>
+<div class="alert alert-info mt-3 small mb-0">CGPA is calculated from published course results using course credits as weights. Unpublished marks are not included.</div>
+{% endblock %}

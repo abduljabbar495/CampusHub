@@ -1,0 +1,10 @@
+body { background: #f5f7fb; min-height: 100vh; }
+.hero { background: linear-gradient(120deg, #e7f0ff, #f1ecff); }
+.dashboard-card { text-decoration: none; color: #182235; border: 0; box-shadow: 0 2px 12px rgba(30,50,80,.06); transition: transform .15s ease; }
+.dashboard-card:hover { transform: translateY(-3px); color: #0d6efd; }
+.card { border: 1px solid #e8edf5; }
+form p { margin-bottom: 1rem; }
+form p label { display:block; font-weight:600; margin-bottom:.35rem; }
+form p input, form p select, form p textarea { display:block; width:100%; padding:.55rem .7rem; border:1px solid #ced4da; border-radius:.375rem; }
+.helptext { display:block; color:#6c757d; font-size:.85rem; }
+.errorlist { color:#b02a37; }

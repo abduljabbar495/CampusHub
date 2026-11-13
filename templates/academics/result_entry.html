@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Enter Student Marks | CampusHub{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <span class="text-primary fw-semibold small text-uppercase">Academic workspace / Results</span>
+  <h2 class="fw-bold mb-1">Student Marks Entry</h2>
+  <p class="text-secondary mb-0">Enter assessment marks for a student enrolled in your assigned course.</p>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <form method="post" novalidate>{% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="mb-4"><label class="form-label fw-semibold" for="id_exam">Course & Result Sheet</label>{{ form.exam }}{% for e in form.exam.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}<div class="form-text">Choose the course result sheet. Theory or Lab assessment fields will appear automatically.</div></div>
+        <div class="mb-4"><label class="form-label fw-semibold" for="id_student_identifier">Student ID</label>{{ form.student_identifier }}{% if form.student_identifier.help_text %}<div class="form-text">{{ form.student_identifier.help_text }}</div>{% endif %}{% for e in form.student_identifier.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}</div>
+        <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold mb-0">Assessment Breakdown</h5><span class="badge rounded-pill text-bg-primary">Total: 100 marks</span></div>
+        <div class="col-md-5 mb-3"><label class="form-label" id="attendance-label">Attendance (7)</label>{{ form.attendance }}{% for e in form.attendance.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        <section id="theory-fields" class="row g-3">
+          <div class="col-12"><div class="p-3 rounded-3 bg-light"><div class="fw-semibold">Theory Assessment</div><div class="small text-secondary">Attendance 7 + Assignment 5 + Presentation 8 + Quiz 15 + Midterm 25 + Final 40</div></div></div>
+          <div class="col-md-4 mark-field"><label class="form-label">Assignment <span class="text-secondary">(5)</span></label>{{ form.assignment }}{% for e in form.assignment.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Presentation <span class="text-secondary">(8)</span></label>{{ form.presentation }}{% for e in form.presentation.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Quiz <span class="text-secondary">(15)</span></label>{{ form.quiz }}{% for e in form.quiz.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Midterm <span class="text-secondary">(25)</span></label>{{ form.midterm }}{% for e in form.midterm.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Final <span class="text-secondary">(40)</span></label>{{ form.final }}{% for e in form.final.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        </section>
+        <section id="lab-fields" class="row g-3 d-none">
+          <div class="col-12"><div class="p-3 rounded-3 bg-light"><div class="fw-semibold">Lab Assessment</div><div class="small text-secondary">Attendance 10 + Evaluation 25 + Report 25 + Lab Final 40</div></div></div>
+          <div class="col-md-4 mark-field"><label class="form-label">Evaluation <span class="text-secondary">(25)</span></label>{{ form.evaluation }}{% for e in form.evaluation.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Report <span class="text-secondary">(25)</span></label>{{ form.report }}{% for e in form.report.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+          <div class="col-md-4 mark-field"><label class="form-label">Lab Final <span class="text-secondary">(40)</span></label>{{ form.lab_final }}{% for e in form.lab_final.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        </section>
+        <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-primary px-4" type="submit">Save Student Marks</button><a class="btn btn-outline-secondary" href="{% url 'result_list' %}">Cancel</a></div>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <div class="small text-uppercase text-secondary fw-semibold mb-2">Marking guide</div>
+      <h5 class="fw-bold">Before saving</h5>
+      <ul class="small text-secondary ps-3 mb-0"><li>Confirm the correct Student ID.</li><li>Student must be enrolled in the selected course.</li><li>Each mark must stay within its maximum limit.</li><li>Saved results remain private until the result sheet is published.</li></ul>
+    </div></div>
+    <div class="alert alert-info mt-3 small mb-0"><strong>Note:</strong> Grade and grade point are calculated automatically from the total marks using the configured grading scale.</div>
+  </div>
+</div>
+<script>
+(function(){
+ const exam=document.getElementById('id_exam');
+ const theory=document.getElementById('theory-fields');
+ const lab=document.getElementById('lab-fields');
+ const attendance=document.getElementById('id_attendance');
+ const types={};
+ {% for e in form.fields.exam.queryset %}types["{{ e.pk }}"]="{{ e.course.course_type }}";{% endfor %}
+ function toggle(){
+   const isLab=types[exam.value]==='LAB';
+   theory.classList.toggle('d-none',isLab);
+   lab.classList.toggle('d-none',!isLab);
+   document.getElementById('attendance-label').textContent=isLab?'Attendance (10)':'Attendance (7)';
+   attendance.max=isLab?'10':'7';
+ }
+ exam.addEventListener('change',toggle); toggle();
+})();
+</script>
+{% endblock %}
