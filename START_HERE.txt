@@ -1,0 +1,23 @@
+HOW TO RUN (Windows)
+1. Unzip this folder.
+2. Double-click run_demo.bat   (needs Python installed)
+3. Open http://127.0.0.1:8000/ in Chrome.
+
+LOGINS
+Teacher : teacher1 / Teach@12345
+Student : student1 / Stud@12345   (also student2, student3)
+Admin   : admin    / Admin@12345  (http://127.0.0.1:8000/admin/)
+
+DEMO
+- Window 1 (teacher1): open Take Attendance -> "Start / Open QR".
+- Window 2, private window (student1): open the link shown under the QR code.
+- Teacher page -> refresh -> student appears in the Present list.
+
+Manual way (PowerShell):
+  python -m venv venv
+  .\venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  python manage.py makemigrations accounts courses attendance
+  python manage.py migrate
+  python manage.py seed_demo
+  python manage.py runserver
