@@ -51,3 +51,6 @@ Lab: Attendance 10, Evaluation 25, Report 25, Lab Final 40.
 - Published result-এর GPA/CGPA course credit দিয়ে weighted হবে।
 
 **Note:** এই delivery source-level update; runtime database migration ও browser integration তোমার local Windows environment-এ উপরের ধাপগুলো অনুসারে complete করতে হবে।
+
+
+ডাটাবেস নোট: এই build-এ SQLite ব্যবহার করা হয়েছে। `db.sqlite3` ফাইলটি `manage.py`-এর পাশে তৈরি হবে। XAMPP/MySQL configuration প্রয়োজন নেই।

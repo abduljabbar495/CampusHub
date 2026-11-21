@@ -1,85 +1,128 @@
-# CampusHub – Secure Campus Management & Security Platform
+# CampusHub — Group 9 Capstone
 
-SE331 · Lab 41_B1 · Group 9 · Fall 2026
-Python · Django · Django ORM · MySQL · Bootstrap 5 · Render · Git/GitHub
+A Django starter implementation for Abdul Jabbar's assigned requirements:
+- **FR-04:** Examination Results & Academic Performance
+- **FR-05:** Course Materials Management
+- **FR-07:** Campus Notices & Events
+- **FR-09:** Visitor Management with QR passes
 
-A role-based web platform that digitises academic, administrative and campus-security work.
+## Requirements
+- Python 3.10+
+- Django 5.2.19
+- SQLite (built into Python; no XAMPP/MySQL setup required)
 
-## Modules (mapped to the proposal)
+## 1. Open in VS Code
+Extract the ZIP, then open the `CampusHub` folder in VS Code.
 
-| Module | Features | Where |
-|---|---|---|
-| **1. User & Academic Management** | Registration & RBAC, student profiles, course enrollment, class schedule, **QR-based attendance**, academic results | `accounts/`, `academics/` |
-| **2. Learning & Campus Activity** | Learning materials, assignments (submit + grade), **online quizzes** (timed, auto-graded), notices, events + RSVP, complaints with resolution workflow | `campus/` |
-| **3. Campus Security & Administration** | **Visitor registration & QR passes** (check-in/out, expiry, revoke), incident reporting & tracking, **audit log**, role dashboards, reports + CSV export | `security/`, `accounts/` |
-
-Roles: Student · Teacher · Administrative Staff · Security Guard · System Administrator · University Management (read-only monitoring).
-
-## Security features
-
-- **RBAC** on every view (`accounts/permissions.py`), plus object-level scoping (teachers see only their courses, students only their data). Denied attempts are audited.
-- **MFA** – TOTP (Google Authenticator / Authy). Secrets are **encrypted at rest** (Fernet).
-- **Password hashing** – Argon2 (PBKDF2 fallback), 10-char minimum, common-password checks.
-- **Brute-force protection** – account lockout after 5 failed logins / MFA attempts (15 min).
-- **Audit logging** – logins, failures, MFA, CRUD, exports, access-denied, visitor scans (`/audit/`).
-- **Secure file uploads** – extension whitelist, 10 MB limit, random UUID file names, served only to signed-in users.
-- Input validation via Django forms; CSRF; secure/HttpOnly cookies; HSTS + HTTPS redirect in production; clickjacking protection; 1-hour idle session timeout; CSV-injection guard on exports; visitor ID numbers encrypted.
-- Teacher self-registrations require administrator approval.
-
-## Run locally
-
-```bash
-python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
+## 2. Create virtual environment (Windows PowerShell)
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-cp .env.example .env        # optional; with no DB_ENGINE it uses SQLite
+```
+If PowerShell blocks activation, run:
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.venv\Scripts\Activate.ps1
+```
 
-python manage.py makemigrations accounts academics campus security   # first time only – commit the generated files
+## 3. Configure environment
+Copy `.env.example` to `.env`. The default configuration uses SQLite, so you can run the first test without configuring MySQL.
+
+## 4. Create database tables and administrator
+```powershell
+python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser        # becomes a System Administrator
-python manage.py seed_demo              # optional: one demo user per role (password: CampusHub@2026!)
+python manage.py createsuperuser
 python manage.py runserver
-python manage.py test                   # run the test-suite
+```
+Open http://127.0.0.1:8000/
+
+Admin panel: http://127.0.0.1:8000/admin/
+
+## 5. Database
+
+This delivery uses **SQLite only**. Django stores the database in `db.sqlite3` beside `manage.py`. No MySQL server, XAMPP, database creation, or database credentials are required. Keep `db.sqlite3` private and back it up before applying migrations.
+
+## 6. Initial data setup
+Sign in to `/admin/` using the superuser:
+1. Create teacher accounts and set their role to `TEACHER`.
+2. Create student accounts and set their role to `STUDENT`.
+3. Create staff/security accounts with roles `STAFF` or `SECURITY`.
+4. Create Courses, assign each course a teacher, and add students in the course's Students field.
+5. Use the normal dashboard to access the features.
+
+**Important:** The public registration form is for student accounts. For security, staff, teacher, security and admin accounts should be created by an administrator through Django Admin. If a user selects another role during public registration, change that behavior before production deployment.
+
+## Role summary
+- Admin: configure courses and monitor all records.
+- Teacher: create exams, enter results for assigned courses, upload course materials.
+- Student: view published results and course materials for enrolled courses.
+- Authorized Staff: create notices and events.
+- Security Guard: register visitors and process check-in/check-out.
+
+## Notes and limitations in this starter
+- The grade thresholds are implemented in `academics/models.py` as a configurable starter scale. Confirm the official grading scale required by your university before submission.
+- QR pass generation is implemented. This starter's QR code opens a staff-authenticated scan/check-in page; it does not use a browser camera scanner. Security staff can scan the QR with a phone QR reader and open the link while logged in.
+- Student result pages show semester-wise GPA, published course grades, earned/attempted credits and overall credit-weighted CGPA. Confirm the official grading scale and repeat-course policy with the university before treating CGPA as an official transcript value.
+- File extension and size checks are included for course materials. Production deployment should additionally validate file content, scan uploads, serve media securely, and configure HTTPS.
+- This is a starter capstone implementation. Review permissions and test with separate Student, Teacher, Staff and Security accounts before presenting or deploying.
+
+## Troubleshooting
+- `No module named django`: activate `.venv`, then `pip install -r requirements.txt`.
+- MySQL connection error: check XAMPP MySQL is running, database name, port, username and password in `.env`.
+- `makemigrations` / `migrate` errors: run commands from the folder containing `manage.py`.
+- Uploaded files are stored under `media/` during development.
+
+## Academic Results (Theory and Lab)
+
+Course setup includes course type (Theory/Lab), credit value, assigned teacher, and enrolled students. A teacher can create a result sheet for a course and semester, then enter marks by Student ID. Teachers can only work with their assigned courses; students see only their own published results.
+
+- Theory: Attendance 7, Assignment 5, Presentation 8, Quiz 15, Midterm 25, Final 40 (100 total).
+- Lab: Attendance 10, Evaluation 25, Report 25, Lab Final 40 (100 total).
+
+Students can sign in with their Student ID and password. Teachers can sign in with their Teacher ID and password. Admins can still use their username. Configure each user's Student ID / Teacher ID and role in Django Admin. Course credit is used to calculate semester GPA and cumulative CGPA. Students see only their own published results. Teachers see a separate result workspace for courses assigned to them and can create result sheets, enter marks and publish results. Failed courses count as attempted credits but not earned credits. The grade-point scale in `academics/models.py` is a starter scale and should be checked against the university's official grading policy before final submission.
+
+
+## FR-04 presentation checklist
+1. Create Teacher and Student test accounts in Django Admin.
+2. Create a Theory course and a Lab course, assign a teacher, and enroll the test student.
+3. Create a semester result sheet for each course.
+4. Sign in as the assigned teacher and enter marks using the correct assessment breakdown.
+5. Open the Examinations page and publish the result sheet (publishing is a POST action).
+6. Sign in as the student and verify that only published results are visible.
+7. Verify the course credit, total marks, grade, grade point, semester GPA and overall CGPA.
+8. Sign in as a different student and verify that another student's results are not visible.
+9. Sign in as a teacher assigned to another course and verify that the teacher cannot enter or publish results for courses not assigned to them.
+
+**Academic policy note:** The proposal supplies assessment mark distributions but does not specify an official grade-point conversion table. The current A+–F thresholds are a configurable demonstration scale, not a claim that they match DIU's official grading policy. Confirm the official scale with the supervisor before treating GPA/CGPA as institutionally authoritative.
+
+
+## Bulk Result Entry
+Teachers can open a draft result sheet from the Teacher Result Workspace or Examinations page and select **Bulk entry**. The page lists all students enrolled in that course, allows marks to be entered in one table, pre-fills existing draft entries, validates each component against its maximum, and saves the batch atomically. Published result sheets are locked. Only the assigned teacher or an administrator can access this page.
+
+
+## Abdul Jabbar — Assigned Requirements in this build
+- **Module 1, FR-04:** Academic Results & Performance — retained from the uploaded project.
+- **Module 2, FR-05:** Course Materials — teacher uploads to assigned courses; enrolled students can view/download.
+- **Module 2, FR-07:** Campus Notices & Events — authorized Staff/Admin can create and publish; other roles see published content.
+- **Module 3, FR-09:** Visitor Management — Security/Admin registration, unique QR pass, check-in and check-out.
+
+See `FR05_FR07_FR09_IMPLEMENTATION_BN.md` for the updated feature guide and test workflow.
+
+
+## Additional RBAC, Enrollment and Audit implementation
+
+This package includes an approval-based `EnrollmentRequest` workflow, same-course student directory, Security-only visitor registration and state changes, `VisitLog`, and a separate Admin-only `AuditLog` interface at `/audit-logs/`. FR-04 academic result model and calculation source files were not edited by this enhancement.
+
+### Apply migrations
+
+```powershell
+python manage.py check
+python manage.py makemigrations
+python manage.py migrate
+python manage.py test
 ```
 
-Open http://127.0.0.1:8000/ . Environment variables are read from the process (load `.env` with your shell, or use `export $(cat .env | xargs)`).
-
-### Using MySQL
-
-```sql
-CREATE DATABASE campushub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-then set `DB_ENGINE=mysql`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`. (PyMySQL is used, so no C compiler is needed.)
-
-## Deploy on Render
-
-1. Push this folder to GitHub (commit the generated `*/migrations/0001_initial.py` files).
-2. In Render choose **New → Blueprint** (uses `render.yaml`) or create a Web Service with build command `./build.sh` and start command `gunicorn config.wsgi:application`.
-3. Render does not host MySQL – use an external MySQL (Aiven, Railway, TiDB Cloud, a VPS…) and set `DB_*` variables.
-4. Set `DJANGO_SUPERUSER_USERNAME / EMAIL / PASSWORD` to auto-create the first administrator.
-5. **Uploads:** Render's disk is ephemeral. Attach a Render Disk mounted at `media/` (or move `MEDIA_ROOT` to S3/Cloudinary) so uploaded files survive redeploys. Back up the database regularly (`mysqldump`).
-
-## Project layout
-
-```
-config/      settings, urls, wsgi
-accounts/    users, RBAC, MFA, audit log, notifications, dashboards, reports
-academics/   courses, enrollment, schedule, QR attendance, results
-campus/      materials, assignments, quizzes, notices, events, complaints
-security/    visitors & passes, incidents
-templates/   Bootstrap 5 templates (generic list/form/delete templates are reused everywhere)
-```
-
-## Typical flows to demo
-
-1. Admin creates a teacher/guard/staff user → teacher creates a course, a class session and opens attendance (QR appears).
-2. Student registers, enrolls, scans the QR (or opens the link) → attendance recorded; submits an assignment; takes a quiz; files a complaint.
-3. Staff posts a notice/event and resolves the complaint → student gets a notification.
-4. Guard registers a visitor → prints the QR pass → checks them in/out; anyone reports an incident → guard triages it.
-5. Admin / Management open **Dashboard → Reports / Audit log** and export CSV.
-
-## One-click local setup
-
-- **Windows:** double-click `run_windows.bat` (Python 3.11+ must be installed and available as `py`).
-- **macOS/Linux:** run `chmod +x run_linux_mac.sh && ./run_linux_mac.sh`.
-
-The first run installs dependencies, creates database migrations, migrates SQLite, asks you to create an administrator, and starts the development server at http://127.0.0.1:8000/.
+Run these commands from the directory containing `manage.py`. Back up your database before applying migrations.

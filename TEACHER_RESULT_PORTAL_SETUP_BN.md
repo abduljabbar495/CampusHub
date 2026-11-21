@@ -36,3 +36,6 @@ python manage.py runserver
 
 > Existing database-এর User.role পরিবর্তন করলে নতুন migration লাগে না; Admin panel থেকে record update করুন।
 > Teacher portal server-side role permission দিয়ে সুরক্ষিত।
+
+
+ডাটাবেস নোট: এই build-এ SQLite ব্যবহার করা হয়েছে। `db.sqlite3` ফাইলটি `manage.py`-এর পাশে তৈরি হবে। XAMPP/MySQL configuration প্রয়োজন নেই।
